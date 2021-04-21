@@ -82,7 +82,6 @@ public class Detalle extends PBase {
                 clsClasses.clsD_ordend item = (clsClasses.clsD_ordend)lvObj;
 
                 adapter.setSelectedIndex(position);
-
             };
         });
     }
