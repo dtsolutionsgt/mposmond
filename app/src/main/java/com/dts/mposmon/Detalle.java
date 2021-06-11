@@ -150,6 +150,7 @@ public class Detalle extends PBase {
             Intent intent = new Intent(this, srvCommit.class);
             intent.putExtra("URL",gl.wsurl);
             intent.putExtra("command",ssq);
+            intent.putExtra("orderid",""+id);
             startService(intent);
 
             finish();

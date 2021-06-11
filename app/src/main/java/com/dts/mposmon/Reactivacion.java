@@ -102,6 +102,7 @@ public class Reactivacion extends PBase {
             Intent intent = new Intent(this, srvCommit.class);
             intent.putExtra("URL",gl.wsurl);
             intent.putExtra("command",ssq);
+            intent.putExtra("orderid",""+itemid);
             startService(intent);
 
             finish();

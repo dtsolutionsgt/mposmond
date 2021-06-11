@@ -7,7 +7,8 @@ import android.content.Context;
 public class appGlobals extends Application {
 
     public Context context;
-    public String wsurl;
+    public String wsurl,sucursal;
     public int emp,tienda,id,modo;
+    public boolean restart=false;
 
 }

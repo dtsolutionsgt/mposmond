@@ -1,14 +1,11 @@
 package com.dts.ladapter;
 
 import android.content.Context;
-import java.util.ArrayList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dts.base.DateUtils;
@@ -17,16 +14,18 @@ import com.dts.base.clsClasses;
 import com.dts.mposmon.PBase;
 import com.dts.mposmon.R;
 
-public class LA_D_orden  extends BaseAdapter {
+import java.util.ArrayList;
+
+public class LA_Suc extends BaseAdapter {
 
     private MiscUtils mu;
     private DateUtils du;
 
-    private ArrayList<clsClasses.clsD_orden> items= new ArrayList<clsClasses.clsD_orden>();
+    private ArrayList<clsClasses.clsSuc> items= new ArrayList<clsClasses.clsSuc>();
     private int selectedIndex;
     private LayoutInflater l_Inflater;
 
-    public LA_D_orden(Context context, PBase owner, ArrayList<clsClasses.clsD_orden> results) {
+    public LA_Suc(Context context, PBase owner, ArrayList<clsClasses.clsSuc> results) {
         items = results;
         l_Inflater = LayoutInflater.from(context);
         selectedIndex = -1;
@@ -62,37 +61,20 @@ public class LA_D_orden  extends BaseAdapter {
 
         if (convertView == null) {
 
-            convertView = l_Inflater.inflate(R.layout.lv_d_orden, null);
+            convertView = l_Inflater.inflate(R.layout.lv_suc, null);
             holder = new ViewHolder();
 
             holder.lbl6 = (TextView) convertView.findViewById(R.id.lblV6);
-            holder.lbl10 = (TextView) convertView.findViewById(R.id.lblV10);
-            holder.lbl11 = (TextView) convertView.findViewById(R.id.lblV11);
-            holder.lbl12 = (TextView) convertView.findViewById(R.id.lblV12);
-            holder.relBack = (RelativeLayout) convertView.findViewById(R.id.relbase);
-            holder.imgw = (ImageView) convertView.findViewById(R.id.imageView4);
 
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.lbl6.setText(""+items.get(position).num_orden.toUpperCase());
-        holder.lbl10.setText("Tiempo : "+items.get(position).tiempo_total+" min");
-        holder.lbl11.setText("Limite : "+items.get(position).tiempo_limite+" min");
-        holder.lbl12.setText(items.get(position).nota);
-
-        holder.relBack.setBackgroundColor(items.get(position).color);
-
-        if (items.get(position).tiempo_total>items.get(position).tiempo_limite) {
-            holder.imgw.setVisibility(View.VISIBLE);
-        } else {
-            holder.imgw.setVisibility(View.INVISIBLE);
-        }
-        if (items.get(position).estado>2) holder.imgw.setVisibility(View.INVISIBLE);
+        holder.lbl6.setText(""+items.get(position).nombre);
 
         if(selectedIndex!= -1 && position == selectedIndex) {
-            convertView.setBackgroundColor(Color.TRANSPARENT);
+            convertView.setBackgroundColor(Color.rgb(26,138,198));
         } else {
             convertView.setBackgroundColor(Color.TRANSPARENT);
         }
@@ -101,9 +83,7 @@ public class LA_D_orden  extends BaseAdapter {
     }
 
     static class ViewHolder {
-        TextView lbl6,lbl10,lbl11,lbl12;
-        RelativeLayout relBack;
-        ImageView imgw;
+        TextView lbl6;
     }
 
 }

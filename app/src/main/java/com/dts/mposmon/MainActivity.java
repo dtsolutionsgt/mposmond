@@ -4,7 +4,10 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,9 +15,12 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,14 +34,19 @@ import android.widget.TextView;
 import com.dts.base.clsClasses;
 import com.dts.classes.ExDialog;
 import com.dts.classes.clsD_ordenObj;
+import com.dts.classes.clsD_ordendObj;
+import com.dts.classes.clsRepBuilder;
 import com.dts.ladapter.LA_D_orden;
+import com.dts.ladapter.LA_D_ordend;
 import com.dts.services.srvCommit;
 import com.dts.services.startJobService;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -45,8 +56,8 @@ import org.apache.commons.io.FileUtils;
 public class MainActivity extends PBase {
 
     private GridView gridView;
-    private ImageView imgCon;
-    private TextView lblErr,lblHora,lble,lblp,lblr;
+    private ImageView imgCon,imgWifi;
+    private TextView lblErr,lblHora,lblSuc,lble,lblp,lblr;
 
     private clsD_ordenObj D_ordenObj;
 
@@ -54,8 +65,8 @@ public class MainActivity extends PBase {
 
     public ArrayList<String> corels= new ArrayList<String>();
 
-    private String params,errstr,path;
-    private boolean idle=true;
+    private String params,errstr,path,mac;
+    private boolean idle=true,wifi;
 
     private TimerTask ptask;
     private int period=10000,delay=50;
@@ -74,8 +85,10 @@ public class MainActivity extends PBase {
 
             gridView = findViewById(R.id.gridView);
             imgCon=findViewById(R.id.imageView3);imgCon.setVisibility(View.INVISIBLE);
+            imgWifi=findViewById(R.id.imageView6);imgWifi.setVisibility(View.INVISIBLE);
             lblErr=findViewById(R.id.textView3);lblErr.setVisibility(View.INVISIBLE);
             lblHora=findViewById(R.id.textView);
+            lblSuc=findViewById(R.id.textView17);
             lble=findViewById(R.id.textView179);
             lblp=findViewById(R.id.textView181);
             lblr=findViewById(R.id.textView182);
@@ -120,7 +133,19 @@ public class MainActivity extends PBase {
     private void processTimer() {
         try {
             lblHora.setText(du.shora(du.getActDateTime()));
-            if (idle) recibeOrdenes();
+
+            if (wifi) {
+                if (isOnWifi()==0) {
+                    if (imgCon.getVisibility()==View.INVISIBLE) toastlong("SIN CONEXIÓN A INTERNET");
+                    imgCon.setVisibility(View.VISIBLE);
+                } else {
+                    if (imgCon.getVisibility()==View.VISIBLE) toastlong("Internet conectado");
+                    imgCon.setVisibility(View.INVISIBLE);
+                    if (idle) recibeOrdenes();
+                }
+            } else {
+                if (idle) recibeOrdenes();
+            }
         } catch (Exception e) {
             toast(new Object(){}.getClass().getEnclosingMethod().getName()+" . "+e.getMessage());
         }
@@ -154,7 +179,7 @@ public class MainActivity extends PBase {
             adapter=new LA_D_orden(this,this,D_ordenObj.items);
             gridView.setAdapter(adapter);
         } catch (Exception e) {
-            toast(e.getMessage());
+            //toast(e.getMessage());
         }
 
         lble.setText(""+cent);lblp.setText(""+cprep);lblr.setText(""+cretr);
@@ -176,10 +201,13 @@ public class MainActivity extends PBase {
                 File directory = new File(errdir);directory.mkdirs();
             } catch (Exception e) {}
 
-            initTimer();
-
             getParams();
             if (gl.wsurl.isEmpty()) return false;
+
+
+            wifi=conexionWiFi();if (wifi) imgWifi.setVisibility(View.VISIBLE);
+
+            initTimer();
 
             params =gl.wsurl+"#"+gl.emp+"#"+gl.tienda;
 
@@ -222,7 +250,14 @@ public class MainActivity extends PBase {
             for (int i = 0; i < files.length; i++) {
                 fname=files[i].getName();
                 pp=fname.indexOf(".txt");
-                if (pp>0) agregaOrden(path+"/"+fname,path+"/error/"+fname,fname);
+                if (pp>0) {
+                    pp=fname.indexOf("_");
+                    if (pp<0) {
+                        agregaOrden(path+"/"+fname,path+"/error/"+fname,fname);
+                    } else {
+                        enviaPendiente(path+"/"+fname,fname);
+                    }
+                }
             }
         } catch (Exception e) {
             toast("recibeOrdenes1 : "+e.getMessage());
@@ -237,6 +272,8 @@ public class MainActivity extends PBase {
                 } catch (Exception e) {}
             }
 
+            if (corels.size()>0) imprimeOrdenes();
+
             D_ordenObj.fill("WHERE (ESTADO=0)");
             if (D_ordenObj.count>0) enviaConfirmacion();
             D_ordenObj.items.clear();
@@ -244,6 +281,7 @@ public class MainActivity extends PBase {
             toast("recibeOrdenes2 : "+e.getMessage());
         }
 
+        corels.clear();
         listItems();
     }
 
@@ -255,7 +293,7 @@ public class MainActivity extends PBase {
         int lim;
         boolean flag=true;
 
-        cor=cor.replace(".txt","");corels.add(cor);
+        cor=cor.replace(".txt","");//corels.add(cor);
 
         try {
             sql="SELECT CODIGO_ORDEN FROM D_ORDEN WHERE CODIGO_ORDEN="+cor;
@@ -328,11 +366,137 @@ public class MainActivity extends PBase {
             Intent intent = new Intent(MainActivity.this, srvCommit.class);
             intent.putExtra("URL",gl.wsurl);
             intent.putExtra("command",ss);
+            intent.putExtra("orderid",du.getCorelTimeStr());
             startService(intent);
 
         } catch (Exception e) {
             toast(new Object(){}.getClass().getEnclosingMethod().getName()+" . "+e.getMessage());
         }
+    }
+
+    public void enviaPendiente(String fname,String ordenid) {
+        File file=null;
+        BufferedReader br=null;
+        String ss="";
+
+        try {
+            file=new File(fname);
+            br = new BufferedReader(new FileReader(file));
+        } catch (Exception e) {
+            return;
+        }
+
+        try {
+            ss=br.readLine();
+        } catch (Exception e) {
+            ss="";
+        }
+
+        try {
+            br.close();
+        } catch (Exception e) {}
+
+        if (ss.isEmpty()) return;
+
+        file.delete();
+
+        try {
+            Intent intent = new Intent(MainActivity.this, srvCommit.class);
+            intent.putExtra("URL",gl.wsurl);
+            intent.putExtra("command",ss);
+            intent.putExtra("orderid","");
+            startService(intent);
+        } catch (Exception e) {
+            toast(new Object(){}.getClass().getEnclosingMethod().getName()+" . "+e.getMessage());
+        }
+    }
+
+    //endregion
+
+    //region Impresion
+
+    private void imprimeOrdenes() {
+        if (!tieneImpresion()) return;
+        if (generaImpresion()) imprimir();
+    }
+
+    private boolean generaImpresion() {
+        clsRepBuilder rep;
+        String ordid,ss;
+
+        try {
+            clsD_ordenObj D_ordenObj=new clsD_ordenObj(this,Con,db);
+            clsD_ordendObj D_ordendObj=new clsD_ordendObj(this,Con,db);
+
+            rep=new clsRepBuilder(this,36,true,"",2,"print.txt");
+
+            for (int i = 0; i <corels.size(); i++) {
+
+                ordid=corels.get(i);
+
+                try {
+                    D_ordenObj.fill("WHERE (CODIGO_ORDEN="+ordid+")");
+                    D_ordendObj.fill("WHERE (CODIGO_ORDEN="+ordid+")");
+
+                    ss=D_ordenObj.first().num_orden.toUpperCase()+" "+D_ordenObj.first().nota;
+
+                    rep.add("");
+                    rep.add("ORDEN : "+ss);
+                    rep.add("");
+                    rep.add("Fecha : "+du.sfecha(du.getActDateTime())+" "+du.shora(du.getActDateTime()));
+                    rep.line();
+
+                    for (int ii = 0; ii <D_ordendObj.count; ii++) {
+                        rep.add(D_ordendObj.items.get(ii).nombre);
+                    }
+
+                    rep.add("");rep.add("");rep.add("");
+
+                } catch (Exception e) {
+                    toast("generaImpresion : "+e.getMessage());
+                }
+            }
+
+            rep.save();rep.clear();
+
+            return true;
+        } catch (Exception e) {
+            toastlong("generaImpresion : "+e.getMessage());return false;
+        }
+    }
+
+    private void imprimir() {
+        try {
+            Intent intent = this.getPackageManager().getLaunchIntentForPackage("com.dts.epsonprint");
+            intent.putExtra("mac","BT:"+mac);
+            intent.putExtra("fname", Environment.getExternalStorageDirectory()+"/print.txt");
+            intent.putExtra("askprint",1);
+            intent.putExtra("copies",1);
+            this.startActivity(intent);
+        } catch (Exception e) {
+            toastlong("El controlador de Epson TM BT no está instalado");
+        }
+    }
+
+    private boolean tieneImpresion() {
+        String line;
+        int imp=0;
+
+        try {
+            File file1 = new File(Environment.getExternalStorageDirectory(), "/mposmonimp.txt");
+
+            FileInputStream fIn = new FileInputStream(file1);
+            BufferedReader myReader = new BufferedReader(new InputStreamReader(fIn));
+
+            line = myReader.readLine();if (line.equalsIgnoreCase("1")) imp=1;
+            line = myReader.readLine();mac=line;
+
+            myReader.close();
+        } catch (Exception e) {
+           toastlong("Impresion "+e.getMessage()); mac="";imp=0;
+        }
+
+        return imp==1;
     }
 
     //endregion
@@ -353,11 +517,19 @@ public class MainActivity extends PBase {
             line = myReader.readLine();gl.emp=Integer.parseInt(line);
             line = myReader.readLine();gl.tienda=Integer.parseInt(line);
 
+            try {
+                line = myReader.readLine();gl.sucursal=line;
+            } catch (Exception e) {
+                gl.sucursal="";
+            }
+
             myReader.close();
 
         } catch (Exception e) {
             toastlong("Archivo de configuracion no existe o incompleto");gl.wsurl="";
         }
+
+        nombreSucursal();
     }
 
     private void moveFile(String fname,String ename) {
@@ -399,12 +571,88 @@ public class MainActivity extends PBase {
         return Color.rgb(rv,gv,bv);
     }
 
+    public int isOnWifi(){
+        int activo=0;
+
+        try {
+            ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+            if (networkInfo != null && networkInfo.isConnected()){
+                if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) activo=1;
+                if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) activo = 2;
+            }
+        } catch (Exception ex) {}
+
+        return activo;
+    }
+
+    private  void nombreSucursal()  {
+        lblSuc.setText(gl.sucursal);
+    }
+
+    private void saveConSettings(int modo) {
+        FileWriter wfile=null;
+        BufferedWriter writer=null;
+        String fname;
+
+        try {
+
+            fname = Environment.getExternalStorageDirectory().getPath() + "/mposmoncon.txt";
+            wfile = new FileWriter(fname, false);
+
+            if (modo==1) {
+
+                writer = new BufferedWriter(wfile);
+                writer.write("ETHERNET");
+                writer.write("\r\n");
+                writer.close();writer = null;wfile = null;
+
+                restart();
+            } else {
+                File file=new File(fname);
+                try {
+                    file.delete();
+                    restart();
+                } catch (Exception e) {
+                    msgbox("No se puede guardar la configuración.\n"+e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            String ss=e.getMessage();
+        }
+    }
+
+    private void restart() {
+
+        toastlong("Se guardó la configuración. La aplicacion se reiniciará");
+
+        Intent mStartActivity = new Intent(MainActivity.this, MainActivity.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getActivity( this, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        System.exit(0);
+    }
+
+    private boolean conexionWiFi() {
+        try {
+            String fname = Environment.getExternalStorageDirectory().getPath() + "/mposmoncon.txt";
+            File file=new File(fname);
+            return !file.exists();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
     //endregion
 
     //region Dialogs
 
     private void showItemMenu() {
-        final String[] selitems = {"ORDENES ENTREGADOS","ORDENES ANULADOS","CERRAR MONITOR"};
+        final String[] selitems = {"ORDENES ENTREGADAS","ORDENES ANULADAS",
+                "SUCURSAL","IMPRESORA","CONEXIÓN","CERRAR MONITOR"};
         final AlertDialog Dialog;
 
         try {
@@ -432,6 +680,15 @@ public class MainActivity extends PBase {
                             startActivity(new Intent(MainActivity.this, Reactivacion.class));
                             break;
                         case 2:
+                            startActivity(new Intent(MainActivity.this, Sucursal.class));
+                            break;
+                        case 3:
+                            startActivity(new Intent(MainActivity.this, Impresora.class));
+                            break;
+                        case 4:
+                            msgAskEthernet("Tipo de conexión a la red");
+                            break;
+                        case 5:
                             finish();
                             break;
                     }
@@ -540,6 +797,27 @@ public class MainActivity extends PBase {
         }
     }
 
+    private void msgAskEthernet(String msg) {
+        ExDialog dialog = new ExDialog(this);
+        dialog.setTitle("Conexión");
+        dialog.setMessage(msg);
+
+        dialog.setNegativeButton("  Ethernet  ", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                saveConSettings(1);
+            }
+        });
+
+        dialog.setPositiveButton("  WiFi  ", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                saveConSettings(0);
+            }
+        });
+
+        dialog.show();
+    }
+
+
     //endregion
 
     //region Permissions
@@ -583,17 +861,24 @@ public class MainActivity extends PBase {
 
         idle=true;//toast("MPos Monitor despacho activado");
 
+        if (gl.restart) {
+            restart();
+            return;
+        }
+
         try {
             D_ordenObj.reconnect(Con,db);
         } catch (Exception e) {
-            toast(e.getMessage());
+            //toast(e.getMessage());
         }
 
         try {
             listItems();
         } catch (Exception e) {
-            toast(e.getMessage());
+            //toast(e.getMessage());
         }
+
+        nombreSucursal();
     }
 
     @Override

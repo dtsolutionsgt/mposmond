@@ -30,6 +30,11 @@ public class clsClasses {
         public String modif;
     }
 
+    public class clsSuc {
+        public int  codigo;
+        public String nombre;
+    }
+
     // --------------------------------------
 
     public class clsParams {
