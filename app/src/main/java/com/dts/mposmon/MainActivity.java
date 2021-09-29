@@ -164,7 +164,7 @@ public class MainActivity extends PBase {
             D_ordenObj.fill("WHERE (FECHA_INICIO>"+du.getActDate()+") AND (ESTADO=3)");
             cent=D_ordenObj.count;
 
-            D_ordenObj.fill("WHERE ESTADO<3 ORDER BY ESTADO DESC,FECHA_INICIO");
+            D_ordenObj.fill("WHERE ESTADO<3 ORDER BY ESTADO DESC,FECHA_INICIO ");
             cprep=D_ordenObj.count;
 
             for (int i = 0; i <D_ordenObj.count; i++) {
@@ -635,6 +635,18 @@ public class MainActivity extends PBase {
         System.exit(0);
     }
 
+    private void restart2() {
+
+        toastlong("Ordenes borrados,\nla aplicacion se reiniciará");
+
+        Intent mStartActivity = new Intent(MainActivity.this, MainActivity.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getActivity( this, mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        System.exit(0);
+    }
+
     private boolean conexionWiFi() {
         try {
             String fname = Environment.getExternalStorageDirectory().getPath() + "/mposmoncon.txt";
@@ -645,6 +657,23 @@ public class MainActivity extends PBase {
         }
     }
 
+    private void borrarOrdenes() {
+        try {
+            db.beginTransaction();
+
+            db.execSQL("DELETE FROM D_ORDEN");
+            db.execSQL("DELETE FROM D_ORDEND");
+
+            db.setTransactionSuccessful();
+            db.endTransaction();
+
+            restart2();
+        } catch (Exception e) {
+            db.endTransaction();
+            msgbox(e.getMessage());
+        }
+
+    }
 
     //endregion
 
@@ -652,7 +681,7 @@ public class MainActivity extends PBase {
 
     private void showItemMenu() {
         final String[] selitems = {"ORDENES ENTREGADAS","ORDENES ANULADAS",
-                "SUCURSAL","IMPRESORA","CONEXIÓN","CERRAR MONITOR"};
+                "SUCURSAL","IMPRESORA","CONEXIÓN","BORRAR ORDENES","CERRAR MONITOR"};
         final AlertDialog Dialog;
 
         try {
@@ -689,6 +718,9 @@ public class MainActivity extends PBase {
                             msgAskEthernet("Tipo de conexión a la red");
                             break;
                         case 5:
+                            msgAskBorrar("Borra todos los ordenes");
+                            break;
+                        case 6:
                             finish();
                             break;
                     }
@@ -817,6 +849,44 @@ public class MainActivity extends PBase {
         dialog.show();
     }
 
+    private void msgAskBorrar(String msg) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        dialog.setTitle("Borrar ordenes");
+        dialog.setMessage("¿" + msg + "?");
+
+        dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                msgAskBorrar2("Está seguro");
+            }
+        });
+
+        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {}
+        });
+
+        dialog.show();
+    }
+
+    private void msgAskBorrar2(String msg) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        dialog.setTitle("Borrar ordenes");
+        dialog.setMessage("¿" + msg + "?");
+
+        dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                borrarOrdenes();
+            }
+        });
+
+        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {}
+        });
+
+        dialog.show();
+
+    }
 
     //endregion
 
