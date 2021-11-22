@@ -20,6 +20,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -124,6 +125,28 @@ public class MainActivity extends PBase {
                 startActivity(new Intent(MainActivity.this,Detalle.class));
             };
         });
+
+        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                try {
+                    Object lvObj = gridView.getItemAtPosition(position);
+                    clsClasses.clsD_orden item = (clsClasses.clsD_orden)lvObj;
+
+                    adapter.setSelectedIndex(position);
+
+                    corels.clear();
+                    corels.add(""+item.codigo_orden);
+                    imprimeOrdenes();
+
+                    SystemClock.sleep(5000);
+                } catch (Exception e) {
+                }
+                return true;
+            }
+        });
+
+
     }
 
     //endregion
@@ -272,7 +295,7 @@ public class MainActivity extends PBase {
                 } catch (Exception e) {}
             }
 
-            if (corels.size()>0) imprimeOrdenes();
+            //if (corels.size()>0) imprimeOrdenes();
 
             D_ordenObj.fill("WHERE (ESTADO=0)");
             if (D_ordenObj.count>0) enviaConfirmacion();
@@ -308,7 +331,8 @@ public class MainActivity extends PBase {
             br = new BufferedReader(new FileReader(file));
         } catch (Exception e) {
             errstr=e.getMessage(); moveFile(fname,ename,errstr);
-            toast("Ocurrio error en recepción de orden :\n"+errstr);return false;
+            //toast("Ocurrio error en lectura de orden :\n"+errstr);
+            return false;
         }
 
         if (flag) {
@@ -461,7 +485,8 @@ public class MainActivity extends PBase {
 
             return true;
         } catch (Exception e) {
-            toastlong("generaImpresion : "+e.getMessage());return false;
+            toastlong("generaImpresion : "+e.getMessage());
+            return false;
         }
     }
 
