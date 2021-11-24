@@ -137,11 +137,10 @@ public class MainActivity extends PBase {
 
                     corels.clear();
                     corels.add(""+item.codigo_orden);
-                    imprimeOrdenes();
 
-                    SystemClock.sleep(5000);
-                } catch (Exception e) {
-                }
+                    msgAskImprimir("Imprimir orden");
+
+                } catch (Exception e) { }
                 return true;
             }
         });
@@ -353,7 +352,8 @@ public class MainActivity extends PBase {
                 corels.add(cor);
             } catch (Exception e) {
                 db.endTransaction();errstr=e.getMessage();moveFile(fname,ename,errstr);
-                toast("Ocurrio error en recepción de orden :\n"+errstr);return false;
+                //toast("Ocurrio error en recepción de orden :\n"+errstr);
+                return false;
             }
         }
 
@@ -912,6 +912,27 @@ public class MainActivity extends PBase {
         dialog.show();
 
     }
+
+    private void msgAskImprimir(String msg) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+        dialog.setTitle("Imprresión");
+        dialog.setMessage("¿" + msg + "?");
+
+        dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                imprimeOrdenes();
+            }
+        });
+
+        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {}
+        });
+
+        dialog.show();
+
+    }
+
 
     //endregion
 
