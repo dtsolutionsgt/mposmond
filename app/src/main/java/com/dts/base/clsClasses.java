@@ -17,6 +17,7 @@ public class clsClasses {
         public String nota;
 
         public int color;
+        public int limite;
     }
 
     public class clsD_ordend {

@@ -61,6 +61,7 @@ public class MainActivity extends PBase {
     private TextView lblErr,lblHora,lblSuc,lble,lblp,lblr;
 
     private clsD_ordenObj D_ordenObj;
+    private clsD_ordendObj D_ordendObj;
 
     private LA_D_orden adapter;
 
@@ -199,7 +200,7 @@ public class MainActivity extends PBase {
     private void listItems() {
         clsClasses.clsD_orden item;
         long fi,ff=du.getActDateTime();
-        int tt,cent,cprep,cretr;
+        int tt,cent,cprep,cretr,num;
         double pos;
 
         cent=0;cprep=0;cretr=0;
@@ -214,11 +215,22 @@ public class MainActivity extends PBase {
 
             for (int i = 0; i <D_ordenObj.count; i++) {
                 item=D_ordenObj.items.get(i);
+
+                D_ordendObj.fill("WHERE (CODIGO_ORDEN='"+item.codigo_orden+"')");
+                num=D_ordendObj.count;
+
                 item.tiempo_total=du.getmindif(ff,item.fecha_inicio);
                 if (item.tiempo_total>item.tiempo_limite) cretr++;
-                if (item.tiempo_limite<=0) item.tiempo_limite=3;
-                pos=item.tiempo_total;pos=pos/item.tiempo_limite;
+                pos=item.tiempo_total;
+                if (item.tiempo_limite<=0) {
+                    pos=1;
+                } else {
+                    pos=pos/item.tiempo_limite;
+                }
                 item.color=getItemColor(pos,item.estado);
+
+                item.limite=item.tiempo_limite-num-1;
+                if (item.limite<=0) item.limite=0;else item.limite=item.tiempo_limite;
             }
 
             adapter=new LA_D_orden(this,this,D_ordenObj.items);
@@ -257,6 +269,7 @@ public class MainActivity extends PBase {
             params =gl.wsurl+"#"+gl.emp+"#"+gl.tienda;
 
             D_ordenObj=new clsD_ordenObj(this,Con,db);
+            D_ordendObj=new clsD_ordendObj(this,Con,db);
 
             return true;
         } catch (Exception e) {
@@ -1007,6 +1020,7 @@ public class MainActivity extends PBase {
 
         try {
             D_ordenObj.reconnect(Con,db);
+            D_ordendObj.reconnect(Con,db);
         } catch (Exception e) {
             //toast(e.getMessage());
         }

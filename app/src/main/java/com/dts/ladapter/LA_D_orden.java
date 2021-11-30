@@ -79,10 +79,10 @@ public class LA_D_orden  extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        lim=items.get(position).tiempo_limite;if (lim==1) lim=0;
+        lim=items.get(position).limite;
         holder.lbl6.setText(""+items.get(position).num_orden.toUpperCase());
         holder.lbl10.setText("Tiempo : "+items.get(position).tiempo_total+" min");
-        holder.lbl11.setText("Limite : "+items.get(position).tiempo_limite+" min");
+        holder.lbl11.setText("Limite : "+items.get(position).limite+" min");
         holder.lbl12.setText(items.get(position).nota);
 
         if (items.get(position).tiempo_total<2 && lim==0) {
