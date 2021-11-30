@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.TextView;
 
@@ -70,6 +72,13 @@ public class Detalle extends PBase {
     }
 
     public void doExit(View view) {
+        finish();
+    }
+
+    public void doPrint(View view) {
+        imprimir();
+        aplicaEstado(3);
+        SystemClock.sleep(1000);
         finish();
     }
 
@@ -163,6 +172,18 @@ public class Detalle extends PBase {
 
     //region Aux
 
+    private void imprimir() {
+        try {
+            Intent intent = this.getPackageManager().getLaunchIntentForPackage("com.dts.epsonprint");
+            intent.putExtra("mac","BT:"+gl.mac);
+            intent.putExtra("fname", Environment.getExternalStorageDirectory()+"/print.txt");
+            intent.putExtra("askprint",1);
+            intent.putExtra("copies",1);
+            this.startActivity(intent);
+        } catch (Exception e) {
+            toastlong("El controlador de Epson TM BT no está instalado");
+        }
+    }
 
     //endregion
 

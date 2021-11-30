@@ -59,6 +59,7 @@ public class LA_D_orden  extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
+        int lim;
 
         if (convertView == null) {
 
@@ -71,18 +72,26 @@ public class LA_D_orden  extends BaseAdapter {
             holder.lbl12 = (TextView) convertView.findViewById(R.id.lblV12);
             holder.relBack = (RelativeLayout) convertView.findViewById(R.id.relbase);
             holder.imgw = (ImageView) convertView.findViewById(R.id.imageView4);
+            holder.imgc = (ImageView) convertView.findViewById(R.id.imageView9);
 
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
+        lim=items.get(position).tiempo_limite;if (lim==1) lim=0;
         holder.lbl6.setText(""+items.get(position).num_orden.toUpperCase());
         holder.lbl10.setText("Tiempo : "+items.get(position).tiempo_total+" min");
         holder.lbl11.setText("Limite : "+items.get(position).tiempo_limite+" min");
         holder.lbl12.setText(items.get(position).nota);
 
-        holder.relBack.setBackgroundColor(items.get(position).color);
+        if (items.get(position).tiempo_total<2 && lim==0) {
+            holder.relBack.setBackgroundColor(Color.parseColor("#DD9DF5"));
+        } else {
+            holder.relBack.setBackgroundColor(items.get(position).color);
+        }
+
+        if (lim>0) holder.imgc.setVisibility(View.VISIBLE); else holder.imgc.setVisibility(View.INVISIBLE);
 
         if (items.get(position).tiempo_total>items.get(position).tiempo_limite) {
             holder.imgw.setVisibility(View.VISIBLE);
@@ -103,7 +112,7 @@ public class LA_D_orden  extends BaseAdapter {
     static class ViewHolder {
         TextView lbl6,lbl10,lbl11,lbl12;
         RelativeLayout relBack;
-        ImageView imgw;
+        ImageView imgw,imgc;
     }
 
 }

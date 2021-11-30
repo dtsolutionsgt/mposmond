@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="96dp"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/blue_strip" >
+        android:background="@drawable/blue_strip">
 
         <TextView
             android:id="@+id/textView10"
@@ -28,7 +28,7 @@
             android:onClick="doAnul"
             android:text="ANULAR"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <RelativeLayout
@@ -89,7 +89,7 @@
                     android:onClick="doEntreg"
                     android:text="ENTREGADO"
                     android:textColor="#FFFFFF"
-                    android:textSize="30sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -110,22 +110,39 @@
                 android:layout_toStartOf="@+id/textView2">
 
                 <TextView
+                    android:id="@+id/textView18"
+                    android:layout_width="160dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="0dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/frame_key_white"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:onClick="doPrint"
+                    android:text="IMPRIMÏR"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
                     android:id="@+id/textView7"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentStart="true"
                     android:layout_marginStart="0dp"
                     android:layout_marginTop="5dp"
-                    android:layout_marginEnd="0dp"
                     android:layout_marginBottom="5dp"
-                    android:layout_toStartOf="@+id/textView4"
                     android:background="@drawable/frame_key_white"
                     android:clickable="true"
                     android:gravity="center"
                     android:onClick="doPrep"
+                    android:paddingLeft="10dp"
+                    android:paddingEnd="10dp"
                     android:text="PREPARACIÓN"
                     android:textColor="#FFFFFF"
-                    android:textSize="30sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -138,21 +155,19 @@
 
                 <TextView
                     android:id="@+id/textView6"
-                    android:layout_width="wrap_content"
+                    android:layout_width="160dp"
                     android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginStart="0dp"
+                    android:layout_marginStart="30dp"
                     android:layout_marginTop="5dp"
-                    android:layout_marginEnd="0dp"
                     android:layout_marginBottom="5dp"
-                    android:layout_toEndOf="@+id/textView4"
+                    android:layout_toEndOf="@+id/textView7"
                     android:background="@drawable/frame_key_white"
                     android:clickable="true"
                     android:gravity="center"
                     android:onClick="doListo"
                     android:text="LISTO"
                     android:textColor="#FFFFFF"
-                    android:textSize="30sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </RelativeLayout>
         </RelativeLayout>

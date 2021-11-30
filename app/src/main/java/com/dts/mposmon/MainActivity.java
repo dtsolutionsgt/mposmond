@@ -111,6 +111,22 @@ public class MainActivity extends PBase {
         showItemMenu();
     }
 
+    public void doPrint(View view) {
+        if (corels.size()==0) {
+            msgbox("Debe seleccionar un orden");
+        } else {
+            imprimeOrdenes();
+        }
+    }
+
+    public void doDetail(View view) {
+        if (gl.id==0) {
+            msgbox("Debe seleccionar un orden");
+        } else {
+            startActivity(new Intent(MainActivity.this,Detalle.class));
+        }
+    }
+
     private void setHandlers() {
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -122,10 +138,17 @@ public class MainActivity extends PBase {
                 adapter.setSelectedIndex(position);
 
                 gl.id=item.codigo_orden;
+
+                gl.mac=mac;
+                corels.clear();
+                corels.add(""+item.codigo_orden);
+                generaImpresion();
+
                 startActivity(new Intent(MainActivity.this,Detalle.class));
             };
         });
 
+        /*
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -144,7 +167,7 @@ public class MainActivity extends PBase {
                 return true;
             }
         });
-
+        */
 
     }
 
@@ -303,6 +326,7 @@ public class MainActivity extends PBase {
             toast("recibeOrdenes2 : "+e.getMessage());
         }
 
+        gl.id=0;
         corels.clear();
         listItems();
     }
@@ -916,7 +940,7 @@ public class MainActivity extends PBase {
     private void msgAskImprimir(String msg) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
-        dialog.setTitle("Imprresión");
+        dialog.setTitle("Impresión");
         dialog.setMessage("¿" + msg + "?");
 
         dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
@@ -932,7 +956,6 @@ public class MainActivity extends PBase {
         dialog.show();
 
     }
-
 
     //endregion
 
