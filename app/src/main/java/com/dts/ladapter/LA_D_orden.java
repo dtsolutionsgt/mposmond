@@ -58,6 +58,7 @@ public class LA_D_orden  extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
+
         ViewHolder holder;
         int lim;
 
@@ -65,7 +66,6 @@ public class LA_D_orden  extends BaseAdapter {
 
             convertView = l_Inflater.inflate(R.layout.lv_d_orden, null);
             holder = new ViewHolder();
-
             holder.lbl6 = (TextView) convertView.findViewById(R.id.lblV6);
             holder.lbl10 = (TextView) convertView.findViewById(R.id.lblV10);
             holder.lbl11 = (TextView) convertView.findViewById(R.id.lblV11);
@@ -75,6 +75,7 @@ public class LA_D_orden  extends BaseAdapter {
             holder.imgc = (ImageView) convertView.findViewById(R.id.imageView9);
 
             convertView.setTag(holder);
+
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
@@ -86,12 +87,15 @@ public class LA_D_orden  extends BaseAdapter {
         holder.lbl12.setText(items.get(position).nota);
 
         if (items.get(position).tiempo_total<2 && lim==0) {
-            holder.relBack.setBackgroundColor(Color.parseColor("#DD9DF5"));
-        } else {
             holder.relBack.setBackgroundColor(items.get(position).color);
+        } else {
+            holder.relBack.setBackgroundColor(Color.parseColor("#DD9DF5"));
         }
 
-        if (lim>0) holder.imgc.setVisibility(View.VISIBLE); else holder.imgc.setVisibility(View.INVISIBLE);
+        if (lim>0) {
+            holder.imgc.setVisibility(View.VISIBLE);
+        } else
+            holder.imgc.setVisibility(View.INVISIBLE);
 
         if (items.get(position).tiempo_total>items.get(position).tiempo_limite) {
             holder.imgw.setVisibility(View.VISIBLE);

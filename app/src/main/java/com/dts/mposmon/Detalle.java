@@ -20,6 +20,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
 public class Detalle extends PBase {
 
     private ListView listView;
@@ -75,7 +80,32 @@ public class Detalle extends PBase {
         finish();
     }
 
+    private boolean tieneImpresion() {
+
+        String line;
+        int imp=0;
+
+        try {
+
+            File file1 = new File(Environment.getExternalStorageDirectory(), "/mposmonimp.txt");
+
+            FileInputStream fIn = new FileInputStream(file1);
+            BufferedReader myReader = new BufferedReader(new InputStreamReader(fIn));
+
+            line = myReader.readLine();if (line.equalsIgnoreCase("1")) imp=1;
+            line = myReader.readLine();gl.mac=line;
+
+            myReader.close();
+
+        } catch (Exception e) {
+            toastlong("Impresion "+e.getMessage()); gl.mac="";imp=0;
+        }
+
+        return imp==1;
+    }
+
     public void doPrint(View view) {
+        if (!tieneImpresion()) return;
         imprimir();
         aplicaEstado(3);
         SystemClock.sleep(1000);
@@ -174,12 +204,27 @@ public class Detalle extends PBase {
 
     private void imprimir() {
         try {
-            Intent intent = this.getPackageManager().getLaunchIntentForPackage("com.dts.epsonprint");
-            intent.putExtra("mac","BT:"+gl.mac);
-            intent.putExtra("fname", Environment.getExternalStorageDirectory()+"/print.txt");
-            intent.putExtra("askprint",1);
-            intent.putExtra("copies",1);
-            this.startActivity(intent);
+
+            String filePath = Environment.getExternalStorageDirectory()+"/print.txt";
+            File file = new File(filePath);
+
+            if(file.exists()){
+
+                if (gl.mac!=null){
+                    Intent intent = this.getPackageManager().getLaunchIntentForPackage("com.dts.epsonprint");
+                    intent.putExtra("mac","BT:"+gl.mac);
+                    intent.putExtra("fname", Environment.getExternalStorageDirectory()+"/print.txt");
+                    intent.putExtra("askprint",1);
+                    intent.putExtra("copies",1);
+                    this.startActivity(intent);
+                }else{
+                    toastlong("No se obtuvo el mac adress de la impresora");
+                }
+
+            }else{
+                toastlong("El archivo de impresión no se generó");
+            }
+
         } catch (Exception e) {
             toastlong("El controlador de Epson TM BT no está instalado");
         }

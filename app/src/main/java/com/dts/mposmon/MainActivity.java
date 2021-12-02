@@ -83,6 +83,7 @@ public class MainActivity extends PBase {
     private void startApplication() {
 
         try {
+
             super.InitBase();
 
             gridView = findViewById(R.id.gridView);
@@ -198,6 +199,7 @@ public class MainActivity extends PBase {
     }
 
     private void listItems() {
+
         clsClasses.clsD_orden item;
         long fi,ff=du.getActDateTime();
         int tt,cent,cprep,cretr,num;
@@ -214,27 +216,42 @@ public class MainActivity extends PBase {
             cprep=D_ordenObj.count;
 
             for (int i = 0; i <D_ordenObj.count; i++) {
+
                 item=D_ordenObj.items.get(i);
 
                 D_ordendObj.fill("WHERE (CODIGO_ORDEN='"+item.codigo_orden+"')");
                 num=D_ordendObj.count;
 
-                item.tiempo_total=du.getmindif(ff,item.fecha_inicio);
+                item.tiempo_total= du.getmindif(ff,item.fecha_inicio);
+                item.tiempo_total = (item.tiempo_total/60);
+
                 if (item.tiempo_total>item.tiempo_limite) cretr++;
+
                 pos=item.tiempo_total;
+
                 if (item.tiempo_limite<=0) {
                     pos=1;
                 } else {
                     pos=pos/item.tiempo_limite;
                 }
+
                 item.color=getItemColor(pos,item.estado);
 
+                //#EJC20211202: No entiendo porque le resta al tiempo límite este valor.
                 item.limite=item.tiempo_limite-num-1;
-                if (item.limite<=0) item.limite=0;else item.limite=item.tiempo_limite;
+                //item.limite=item.tiempo_limite;
+
+                if (item.limite<=0) {
+                    item.limite=0;
+                }else
+                    item.limite=item.tiempo_limite;
+
             }
 
             adapter=new LA_D_orden(this,this,D_ordenObj.items);
+
             gridView.setAdapter(adapter);
+
         } catch (Exception e) {
             //toast(e.getMessage());
         }
@@ -482,10 +499,12 @@ public class MainActivity extends PBase {
     }
 
     private boolean generaImpresion() {
+
         clsRepBuilder rep;
         String ordid,ss;
 
         try {
+
             clsD_ordenObj D_ordenObj=new clsD_ordenObj(this,Con,db);
             clsD_ordendObj D_ordendObj=new clsD_ordendObj(this,Con,db);
 
@@ -496,6 +515,7 @@ public class MainActivity extends PBase {
                 ordid=corels.get(i);
 
                 try {
+
                     D_ordenObj.fill("WHERE (CODIGO_ORDEN="+ordid+")");
                     D_ordendObj.fill("WHERE (CODIGO_ORDEN="+ordid+")");
 
@@ -521,10 +541,12 @@ public class MainActivity extends PBase {
             rep.save();rep.clear();
 
             return true;
+
         } catch (Exception e) {
             toastlong("generaImpresion : "+e.getMessage());
             return false;
         }
+
     }
 
     private void imprimir() {
@@ -541,10 +563,12 @@ public class MainActivity extends PBase {
     }
 
     private boolean tieneImpresion() {
+
         String line;
         int imp=0;
 
         try {
+
             File file1 = new File(Environment.getExternalStorageDirectory(), "/mposmonimp.txt");
 
             FileInputStream fIn = new FileInputStream(file1);
@@ -554,6 +578,7 @@ public class MainActivity extends PBase {
             line = myReader.readLine();mac=line;
 
             myReader.close();
+
         } catch (Exception e) {
            toastlong("Impresion "+e.getMessage()); mac="";imp=0;
         }
@@ -566,10 +591,13 @@ public class MainActivity extends PBase {
     //region Aux
 
     public void getParams() {
+
         String line;
+
         gl.wsurl = "http://52.41.114.122/MPosWS_QA/Mposws.asmx";
 
         try {
+
             File file1 = new File(Environment.getExternalStorageDirectory(), "/mposmonitor.txt");
 
             FileInputStream fIn = new FileInputStream(file1);
@@ -613,14 +641,19 @@ public class MainActivity extends PBase {
     }
 
     private int getItemColor(double pos,int estado) {
+
         int rv,gv,bv;
 
-        if (estado==2) return Color.rgb(0,216,36);
-
-        if (pos<0) return Color.rgb(0,240,0);
-        if (pos>1) return Color.rgb(255,0,0);
+        if (estado==2){
+            return Color.rgb(0,216,36);
+        } else if (pos<0){
+            return Color.rgb(0,240,0);
+        } else if (pos>1){
+            return Color.rgb(255,0,0);
+        }
 
         rv=255;
+
         if (pos<=0.5) {
             gv=255;bv=(int) ((1-pos)*255);
         } else {
@@ -630,10 +663,13 @@ public class MainActivity extends PBase {
         gv=255-(int) (pos*128);
         bv=(int) ((1-pos)*255);
 
+        //255-237-218 = Blancho Hueso
+        //255-213-170
         return Color.rgb(rv,gv,bv);
     }
 
     public int isOnWifi(){
+
         int activo=0;
 
         try {
@@ -654,6 +690,7 @@ public class MainActivity extends PBase {
     }
 
     private void saveConSettings(int modo) {
+
         FileWriter wfile=null;
         BufferedWriter writer=null;
         String fname;
@@ -720,16 +757,16 @@ public class MainActivity extends PBase {
     }
 
     private void borrarOrdenes() {
-        try {
-            db.beginTransaction();
 
+        try {
+
+            db.beginTransaction();
             db.execSQL("DELETE FROM D_ORDEN");
             db.execSQL("DELETE FROM D_ORDEND");
-
             db.setTransactionSuccessful();
             db.endTransaction();
-
             restart2();
+
         } catch (Exception e) {
             db.endTransaction();
             msgbox(e.getMessage());
@@ -742,6 +779,7 @@ public class MainActivity extends PBase {
     //region Dialogs
 
     private void showItemMenu() {
+
         final String[] selitems = {"ORDENES ENTREGADAS","ORDENES ANULADAS",
                 "SUCURSAL","IMPRESORA","CONEXIÓN","BORRAR ORDENES","CERRAR MONITOR"};
         final AlertDialog Dialog;

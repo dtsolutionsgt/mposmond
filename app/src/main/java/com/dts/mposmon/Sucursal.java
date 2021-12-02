@@ -201,6 +201,7 @@ public class Sucursal extends PBase {
     //region Aux
 
     public void getParams() {
+
         String line;
         gl.wsurl = "http://52.41.114.122/MPosWS_QA/Mposws.asmx";
 
