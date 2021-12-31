@@ -94,11 +94,16 @@ public class LA_D_orden  extends BaseAdapter {
 
         if (lim>0) {
             holder.imgc.setVisibility(View.VISIBLE);
-        } else
+            //#KM20211231 Agregué el color por defecto
+            holder.relBack.setBackgroundColor(Color.rgb(255, 0, 255));
+        } else {
             holder.imgc.setVisibility(View.INVISIBLE);
+        }
 
         if (items.get(position).tiempo_total>items.get(position).tiempo_limite) {
             holder.imgw.setVisibility(View.VISIBLE);
+            //#KM20211231 Agregué el color por defecto
+            holder.relBack.setBackgroundColor(Color.rgb(255, 0, 0));
         } else {
             holder.imgw.setVisibility(View.INVISIBLE);
         }
