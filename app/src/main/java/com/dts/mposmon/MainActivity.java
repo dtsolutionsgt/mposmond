@@ -20,6 +20,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -134,43 +135,30 @@ public class MainActivity extends PBase {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object lvObj = gridView.getItemAtPosition(position);
-                clsClasses.clsD_orden item = (clsClasses.clsD_orden)lvObj;
 
-                adapter.setSelectedIndex(position);
-
-                gl.id=item.codigo_orden;
-
-                gl.mac=mac;
-                corels.clear();
-                corels.add(""+item.codigo_orden);
-                generaImpresion();
-
-                startActivity(new Intent(MainActivity.this,Detalle.class));
-            };
-        });
-
-        /*
-        gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
+
                     Object lvObj = gridView.getItemAtPosition(position);
                     clsClasses.clsD_orden item = (clsClasses.clsD_orden)lvObj;
 
                     adapter.setSelectedIndex(position);
 
+                    gl.id=item.codigo_orden;
+
+                    gl.mac=mac;
                     corels.clear();
                     corels.add(""+item.codigo_orden);
 
-                    msgAskImprimir("Imprimir orden");
+                    generaImpresion();
 
-                } catch (Exception e) { }
-                return true;
-            }
+                    startActivity(new Intent(MainActivity.this,Detalle.class));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            };
         });
-        */
-
     }
 
     //endregion
@@ -178,10 +166,13 @@ public class MainActivity extends PBase {
     //region Main
 
     private void processTimer() {
+
         try {
+
             lblHora.setText(du.shora(du.getActDateTime()));
 
             if (wifi) {
+
                 if (isOnWifi()==0) {
                     if (imgCon.getVisibility()==View.INVISIBLE) toastlong("SIN CONEXIÓN A INTERNET");
                     imgCon.setVisibility(View.VISIBLE);
@@ -193,6 +184,7 @@ public class MainActivity extends PBase {
             } else {
                 if (idle) recibeOrdenes();
             }
+
         } catch (Exception e) {
             toast(new Object(){}.getClass().getEnclosingMethod().getName()+" . "+e.getMessage());
         }
@@ -261,6 +253,7 @@ public class MainActivity extends PBase {
     }
 
     private boolean initSession() {
+
         try {
 
             path = Environment.getExternalStorageDirectory().getPath() + "/mposmdisp";
@@ -276,8 +269,8 @@ public class MainActivity extends PBase {
             } catch (Exception e) {}
 
             getParams();
-            if (gl.wsurl.isEmpty()) return false;
 
+            if (gl.wsurl.isEmpty()) return false;
 
             wifi=conexionWiFi();if (wifi) imgWifi.setVisibility(View.VISIBLE);
 
@@ -289,9 +282,11 @@ public class MainActivity extends PBase {
             D_ordendObj=new clsD_ordendObj(this,Con,db);
 
             return true;
+
         } catch (Exception e) {
             toast(new Object(){}.getClass().getEnclosingMethod().getName()+" . "+e.getMessage());return false;
         }
+
     }
 
     private void initTimer() {
@@ -313,16 +308,19 @@ public class MainActivity extends PBase {
     //region Ordenes
 
     private void recibeOrdenes() {
+
         int pp;
         String fname;
 
         corels.clear();
 
         try {
+
             File directory = new File(path);
             File[] files = directory.listFiles();
 
             for (int i = 0; i < files.length; i++) {
+
                 fname=files[i].getName();
                 pp=fname.indexOf(".txt");
                 if (pp>0) {
@@ -333,7 +331,9 @@ public class MainActivity extends PBase {
                         enviaPendiente(path+"/"+fname,fname);
                     }
                 }
+
             }
+
         } catch (Exception e) {
             toast("recibeOrdenes1 : "+e.getMessage());
         }
@@ -347,21 +347,24 @@ public class MainActivity extends PBase {
                 } catch (Exception e) {}
             }
 
-            //if (corels.size()>0) imprimeOrdenes();
-
             D_ordenObj.fill("WHERE (ESTADO=0)");
             if (D_ordenObj.count>0) enviaConfirmacion();
             D_ordenObj.items.clear();
+
         } catch (Exception e) {
             toast("recibeOrdenes2 : "+e.getMessage());
         }
 
         gl.id=0;
+
         corels.clear();
+
         listItems();
+
     }
 
     public boolean agregaOrden(String fname,String ename,String cor) {
+
         File file=null;
         BufferedReader br=null;
         ArrayList<String> items=new ArrayList<String>();
@@ -389,7 +392,9 @@ public class MainActivity extends PBase {
         }
 
         if (flag) {
+
             try {
+
                 db.beginTransaction();
 
                 while ((sql=br.readLine())!= null) {
@@ -423,12 +428,15 @@ public class MainActivity extends PBase {
     }
 
     public void enviaConfirmacion() {
+
         String ss="";
         int codo;
         long fini;
 
         try {
+
             for (int i = 0; i <D_ordenObj.count; i++) {
+
                 codo=D_ordenObj.items.get(i).codigo_orden;
                 fini=D_ordenObj.items.get(i).fecha_inicio;
 
@@ -453,6 +461,7 @@ public class MainActivity extends PBase {
     }
 
     public void enviaPendiente(String fname,String ordenid) {
+
         File file=null;
         BufferedReader br=null;
         String ss="";
@@ -494,8 +503,21 @@ public class MainActivity extends PBase {
     //region Impresion
 
     private void imprimeOrdenes() {
+
         if (!tieneImpresion()) return;
-        if (generaImpresion()) imprimir();
+
+        //#EJC20211231: Delay the printing process to wait it close the job before
+        //Don't know if it works but we most to try.
+        if (generaImpresion()){
+            Handler mtimer = new Handler();
+            Runnable mrunner=new Runnable() {
+                @Override
+                public void run() {
+                    imprimir();
+                }
+            };
+            mtimer.postDelayed(mrunner,1000);
+        }
     }
 
     private boolean generaImpresion() {
@@ -550,16 +572,20 @@ public class MainActivity extends PBase {
     }
 
     private void imprimir() {
+
         try {
+
             Intent intent = this.getPackageManager().getLaunchIntentForPackage("com.dts.epsonprint");
             intent.putExtra("mac","BT:"+mac);
             intent.putExtra("fname", Environment.getExternalStorageDirectory()+"/print.txt");
             intent.putExtra("askprint",1);
             intent.putExtra("copies",1);
             this.startActivity(intent);
+
         } catch (Exception e) {
             toastlong("El controlador de Epson TM BT no está instalado");
         }
+
     }
 
     private boolean tieneImpresion() {
@@ -708,6 +734,7 @@ public class MainActivity extends PBase {
                 writer.close();writer = null;wfile = null;
 
                 restart();
+
             } else {
                 File file=new File(fname);
                 try {
@@ -717,6 +744,7 @@ public class MainActivity extends PBase {
                     msgbox("No se puede guardar la configuración.\n"+e.getMessage());
                 }
             }
+
         } catch (Exception e) {
             String ss=e.getMessage();
         }
@@ -950,6 +978,7 @@ public class MainActivity extends PBase {
     }
 
     private void msgAskBorrar(String msg) {
+
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         dialog.setTitle("Borrar ordenes");
@@ -969,6 +998,7 @@ public class MainActivity extends PBase {
     }
 
     private void msgAskBorrar2(String msg) {
+
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         dialog.setTitle("Borrar ordenes");
@@ -989,6 +1019,7 @@ public class MainActivity extends PBase {
     }
 
     private void msgAskImprimir(String msg) {
+
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         dialog.setTitle("Impresión");
@@ -1013,7 +1044,9 @@ public class MainActivity extends PBase {
     //region Permissions
 
     private void grantPermissions() {
+
         try {
+
             if (Build.VERSION.SDK_INT >= 20) {
 
                 if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -1026,6 +1059,7 @@ public class MainActivity extends PBase {
         } catch (Exception e) {
             msgbox(new Object() { }.getClass().getEnclosingMethod().getName() + " . " + e.getMessage());
         }
+
     }
 
     @Override
@@ -1047,6 +1081,7 @@ public class MainActivity extends PBase {
 
     @Override
     public void onResume() {
+
         super.onResume();
 
         idle=true;//toast("MPos Monitor despacho activado");
@@ -1084,7 +1119,5 @@ public class MainActivity extends PBase {
         //super.onBackPressed();
     }
 
-
     //endregion
-
 }
