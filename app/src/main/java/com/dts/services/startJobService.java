@@ -9,7 +9,9 @@ import android.os.PersistableBundle;
 public class startJobService {
 
     public static void startService(Context context, String params) {
+
         try {
+
             ComponentName serviceComponent = new ComponentName(context, srvOrdenesImport.class);
 
             PersistableBundle extras = new PersistableBundle();
@@ -26,6 +28,7 @@ public class startJobService {
             //builder.setRequiresCharging(false); // we don't care if the device is charging or not
             JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
             jobScheduler.schedule(builder.build());
+
         } catch (Exception e) {
             String ss=e.getMessage();
         }
