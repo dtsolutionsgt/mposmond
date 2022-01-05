@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dts.base.clsClasses;
@@ -20,6 +21,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,10 +34,13 @@ public class Detalle extends PBase {
 
     private ListView listView;
     private TextView lblNum;
+    private RelativeLayout relBot,relWait;
 
     private LA_D_ordend adapter;
     private clsD_ordendObj D_ordendObj;
     private clsClasses.clsD_orden item;
+
+    private File file=new File(Environment.getExternalStorageDirectory()+"/print.txt");
 
     private int id;
 
@@ -43,8 +51,10 @@ public class Detalle extends PBase {
 
         super.InitBase();
 
-        listView = (ListView) findViewById(R.id.listView);
-        lblNum=findViewById(R.id.textView179);
+        listView = findViewById(R.id.listView);
+        lblNum = findViewById(R.id.textView179);
+        relBot = findViewById(R.id.relbot);relBot.setVisibility(View.VISIBLE);
+        relWait = findViewById(R.id.relwait);relWait.setVisibility(View.INVISIBLE);
 
         id=gl.id;
 
@@ -107,9 +117,13 @@ public class Detalle extends PBase {
     public void doPrint(View view) {
         if (!tieneImpresion()) return;
         imprimir();
-        aplicaEstado(3);
-        SystemClock.sleep(1000);
-        finish();
+        try {
+            waitprint();
+        } catch (Exception e) {}
+    }
+
+    public void doDel(View view) {
+        file.delete();
     }
 
     private void setHandlers() {
@@ -230,6 +244,27 @@ public class Detalle extends PBase {
         }
     }
 
+    private void waitprint() {
+
+        relBot.setVisibility(View.INVISIBLE);
+        relWait.setVisibility(View.VISIBLE);
+
+        try {
+            Timer timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    if (!file.exists()) {
+                        timer.cancel();
+                        aplicaEstado(3);
+                        return;
+                    }
+                }
+            },0, 1000);
+        } catch (Exception e) {}
+
+    }
+
     //endregion
 
     //region Dialogs
@@ -271,6 +306,5 @@ public class Detalle extends PBase {
     }
 
     //endregion
-
 
 }
