@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -118,8 +119,13 @@ public class Detalle extends PBase {
         if (!tieneImpresion()) return;
         imprimir();
         try {
-            waitprint();
-        } catch (Exception e) {}
+            //waitprint();
+            Handler mtimer = new Handler();
+            Runnable mrunner= () -> msgAskImpresionCorrecta();
+            mtimer.postDelayed(mrunner,2000);
+        } catch (Exception e) {
+            msgbox("Impresion "+e.getMessage());
+        }
     }
 
     public void doDel(View view) {
@@ -170,12 +176,17 @@ public class Detalle extends PBase {
     }
 
     private void aplicaEstado(int est) {
+
         String ss="",ssq="",fs=du.univfechahora(du.getActDateTime());
         long fi,ff=du.getActDateTime();
         int tt;
 
+        lblNum.setText("R1");
+
         try {
+
             switch (est) {
+
                 case 1: // Preparacion
                     ss="UPDATE D_ORDEN SET ESTADO=1,FECHA_FIN=0,TIEMPO_TOTAL=0 WHERE CODIGO_ORDEN="+id;
                     ssq="UPDATE D_ORDEN SET ESTADO=1,FECHA_FIN='20000101 00:00:00',TIEMPO_TOTAL=0 WHERE CODIGO_ORDEN="+id;
@@ -198,7 +209,11 @@ public class Detalle extends PBase {
                     break;
             }
 
+            lblNum.setText("R2");
+
             db.execSQL(ss);
+
+            lblNum.setText("R3");
 
             Intent intent = new Intent(this, srvCommit.class);
             intent.putExtra("URL",gl.wsurl);
@@ -206,7 +221,12 @@ public class Detalle extends PBase {
             intent.putExtra("orderid",""+id);
             startService(intent);
 
+            lblNum.setText("R4");
+
             finish();
+
+            lblNum.setText("R5");
+
         } catch (Exception e) {
             msgbox(new Object(){}.getClass().getEnclosingMethod().getName()+" . "+e.getMessage());
         }
@@ -250,6 +270,7 @@ public class Detalle extends PBase {
         relWait.setVisibility(View.VISIBLE);
 
         try {
+
             Timer timer = new Timer();
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -261,7 +282,10 @@ public class Detalle extends PBase {
                     }
                 }
             },0, 1000);
-        } catch (Exception e) {}
+
+        } catch (Exception e) {
+            msgbox("Error: " + e.getMessage());
+        }
 
     }
 
@@ -289,7 +313,27 @@ public class Detalle extends PBase {
 
     }
 
+    private void msgAskImpresionCorrecta() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
+        dialog.setTitle("Confirmación");
+        dialog.setMessage("¿Impresión correcta?");
+
+        dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                aplicaEstado(3);
+            }
+        });
+
+        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        dialog.show();
+
+    }
 
     //endregion
 
