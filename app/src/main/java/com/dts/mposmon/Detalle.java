@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dts.base.clsClasses;
+import com.dts.classes.ExDialog;
 import com.dts.classes.clsD_ordenObj;
 import com.dts.classes.clsD_ordendObj;
 import com.dts.ladapter.LA_D_ordend;
@@ -313,7 +314,35 @@ public class Detalle extends PBase {
 
     }
 
-    private void msgAskImpresionCorrecta() {
+    public void msgAskImpresionCorrecta() {
+
+        try {
+            ExDialog dialog = new ExDialog(this);
+
+            dialog.setMessage("¿Impresión correcta?");
+            dialog.setCancelable(false);
+
+            dialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    aplicaEstado(3);
+                }
+            });
+
+            dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+
+            AlertDialog adg=dialog.show();
+
+        } catch (Exception ex) {
+            toast(ex.getMessage());
+        }
+
+    }
+
+    private void msgAskImpresionCorrecta_() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         dialog.setTitle("Confirmación");

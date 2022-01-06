@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.widget.Toast;
 
+import com.dts.classes.ExDialog;
 import com.dts.mposmon.R;
 
 import java.io.File;
@@ -164,9 +165,31 @@ public class MiscUtils {
     	});
 		dialog.show();
 	
-	}   
-	
-	public void toast(String msg) {
+	}
+
+    public void msgboxex(String msg) {
+        if (msg.isEmpty()) return;
+
+        try {
+            ExDialog dialog = new ExDialog(cont);
+
+            dialog.setMessage(msg);
+            dialog.setCancelable(false);
+
+            dialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {}
+            });
+
+            AlertDialog adg=dialog.show();
+
+        } catch (Exception ex) {
+            toast(ex.getMessage());
+        }
+
+    }
+
+
+    public void toast(String msg) {
 		Toast.makeText(cont,msg, Toast.LENGTH_SHORT).show();
 	}
 	
