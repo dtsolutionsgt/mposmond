@@ -285,16 +285,21 @@ public class DateUtils {
     }
 
     public int getmindif(long f1,long f2) {
-        int ff,t1,t2,vh,vmi;
+        long ff,t1,t2,vh,vmi;
 
-        ff=(int) f1 % 10000;
-        vh=(int) ff/100;vmi=(int) ff % 100;t1=60*vh+vmi;
+        ff=(long) f1 % 10000;
+        vh=(long) ff/100;
+        vmi=(long) ff % 100;
+        t1=60*vh+vmi;
 
-        ff=(int) f2 % 10000;
-        vh=(int) ff/100;vmi=(int) ff % 100;t2=60*vh+vmi;
+        ff=(long) f2 % 10000;
+        vh=(long) ff/100;
+        vmi=(long) ff % 100;
+        t2=60*vh+vmi;
 
-        ff=t1-t2;if (ff<0) ff=24*60+t1-t2;
-        return ff;
+        ff=t1-t2;
+        if (ff<0) ff=24*60+t1-t2;
+        return (int) ff;
     }
 
 	public int LastDay(int year,int month) {

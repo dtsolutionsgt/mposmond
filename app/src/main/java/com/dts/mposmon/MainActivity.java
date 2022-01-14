@@ -215,7 +215,7 @@ public class MainActivity extends PBase {
                 num=D_ordendObj.count;
 
                 item.tiempo_total= du.getmindif(ff,item.fecha_inicio);
-                item.tiempo_total = (item.tiempo_total/60);
+                //item.tiempo_total = (item.tiempo_total/60);
 
                 if (item.tiempo_total>item.tiempo_limite) cretr++;
 

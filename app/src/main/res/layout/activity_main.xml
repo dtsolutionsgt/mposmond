@@ -20,7 +20,7 @@
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@+id/textView11"
             android:gravity="center"
-            android:text="Version 1.11"
+            android:text="Version 1.13"
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
 

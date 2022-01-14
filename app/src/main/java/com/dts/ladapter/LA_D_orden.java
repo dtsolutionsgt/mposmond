@@ -86,16 +86,20 @@ public class LA_D_orden  extends BaseAdapter {
         holder.lbl11.setText("Limite : "+items.get(position).limite+" min");
         holder.lbl12.setText(items.get(position).nota);
 
-        if (items.get(position).tiempo_total<2 && lim==0) {
+        if (lim==0) {
+            //if (items.get(position).tiempo_total<2 && lim==0) {
             holder.relBack.setBackgroundColor(items.get(position).color);
+            //holder.relBack.setBackgroundColor(Color.parseColor("#DD9DF5"));
         } else {
             holder.relBack.setBackgroundColor(Color.parseColor("#DD9DF5"));
+            //holder.relBack.setBackgroundColor(items.get(position).color);
         }
 
         if (lim>0) {
             holder.imgc.setVisibility(View.VISIBLE);
             //#KM20211231 Agregué el color por defecto
-            holder.relBack.setBackgroundColor(Color.rgb(255, 0, 255));
+            //holder.relBack.setBackgroundColor(Color.rgb(255, 0, 255));
+            //holder.relBack.setBackgroundColor(Color.rgb(255, 255, 255));
         } else {
             holder.imgc.setVisibility(View.INVISIBLE);
         }
