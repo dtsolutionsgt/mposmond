@@ -295,6 +295,7 @@ public class Detalle extends PBase {
     //region Dialogs
 
     private void msgAskAnul(String msg) {
+
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         dialog.setTitle("Anulacion");
