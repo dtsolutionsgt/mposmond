@@ -238,6 +238,7 @@ public class Detalle extends PBase {
     //region Aux
 
     private void imprimir() {
+
         try {
 
             String filePath = Environment.getExternalStorageDirectory()+"/print.txt";
@@ -298,7 +299,7 @@ public class Detalle extends PBase {
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
-        dialog.setTitle("Anulacion");
+        dialog.setTitle("Anulación");
         dialog.setMessage("¿" + msg + "?");
 
         dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
@@ -323,15 +324,15 @@ public class Detalle extends PBase {
             dialog.setMessage("¿Impresión correcta?");
             dialog.setCancelable(false);
 
-            dialog.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    aplicaEstado(3);
-                }
-            });
-
             dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     finish();
+                }
+            });
+
+            dialog.setNeutralButton("Sí", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    aplicaEstado(3);
                 }
             });
 
@@ -349,15 +350,15 @@ public class Detalle extends PBase {
         dialog.setTitle("Confirmación");
         dialog.setMessage("¿Impresión correcta?");
 
-        dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                aplicaEstado(3);
-            }
-        });
-
         dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 finish();
+            }
+        });
+
+        dialog.setPositiveButton("Si", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                aplicaEstado(3);
             }
         });
 
