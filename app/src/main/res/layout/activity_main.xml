@@ -40,7 +40,7 @@
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:text="(C) 2021 , DTSolutions S.A."
+            android:text="(C) 2022 , DTSolutions S.A. - 220128"
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
 
