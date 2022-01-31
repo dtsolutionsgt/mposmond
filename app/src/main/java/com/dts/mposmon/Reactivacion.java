@@ -38,7 +38,7 @@ public class Reactivacion extends PBase {
 
         setHandlers();
 
-        if (gl.modo==0) lblTit.setText("ORDENES ENTREGADOS");else lblTit.setText("ORDENES ANULADOS");
+        if (gl.modo==0) lblTit.setText("ORDENES ENTREGADAS");else lblTit.setText("ORDENES ANULADAS");
 
         listItems();
 
