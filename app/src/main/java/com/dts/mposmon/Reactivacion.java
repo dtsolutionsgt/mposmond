@@ -38,7 +38,7 @@ public class Reactivacion extends PBase {
 
         setHandlers();
 
-        if (gl.modo==0) lblTit.setText("ORDENES ENTREGADOS");else lblTit.setText("ORDENES ANULADOS");
+        if (gl.modo==0) lblTit.setText("ORDENES ENTREGADAS");else lblTit.setText("ORDENES ANULADAS");
 
         listItems();
 
@@ -73,7 +73,9 @@ public class Reactivacion extends PBase {
     //region Main
 
     private void listItems() {
-        long fi=du.addDays(du.getActDate(),-1);
+
+        Long da=du.getActDate();
+        long fi=du.addDays(da,-1);
 
         try {
             if (gl.modo==0) {

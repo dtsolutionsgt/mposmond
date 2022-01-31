@@ -221,12 +221,13 @@ public class DateUtils {
 		return f;
 	}
 
-	public long cfecha(int year,int month, int day) {
-		long c;
-		c=year % 100;
-		c=c*10000+month*100+day;
-		return c*10000;
-	}
+    public long cfecha(long year, long month, long day) {
+        long c;
+        c=year % 100;
+        c=c*10000+month*100+day;
+
+        return c*10000;
+    }
 
 	public long parsedate(long date,int hour,int min) {
 		long f;
@@ -234,14 +235,15 @@ public class DateUtils {
 		return f;
 	}
 
-	public int getyear(long f) {
-		int vy;
+    public long getyear(long f) {
 
-		vy=(int) f/100000000;f=f % 100000000;
-		vy=vy+2000;
+        long vy;
 
-		return vy;
-	}
+        vy=(long) f/100000000;f=f % 100000000;
+        vy=vy+2000;
+
+        return vy;
+    }
 
 	public int getmonth(long f) {
 		int vy,vm;
@@ -321,12 +323,59 @@ public class DateUtils {
 
 	}
 
-	public long addDays(long f,int days){
-		int cyear,cmonth,cday;
+    public long addDays(long f,int days){
+
+        long cyear,cmonth,cday;
+
+        final Calendar c = Calendar.getInstance();
+
+        int año = 0;
+        int mes = 0;
+        int dia = 0;
+
+        String saño = getyear(f)+"";
+        String smes = getmonth(f)-1+"";
+        String sdia = getday(f)+"";
+
+        try {
+            //#EJC20220102: Si el mes es enero, la resta devuelve 0, debe devolver diciembre (12)
+            if (smes.equals("0")){
+                smes ="12";
+                saño = (Integer.parseInt(saño) - 1) + "";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+
+            año = Integer.parseInt(saño);
+            mes = Integer.parseInt(smes);
+            dia = Integer.parseInt(sdia);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //c.set(getyear(f), getmonth(f)-1, getday(f));
+        c.set(año,mes,dia);
+        c.add(Calendar.DATE, days);
+
+        cyear = c.get(Calendar.YEAR);
+        cmonth = c.get(Calendar.MONTH)+1;
+        cday = c.get(Calendar.DAY_OF_MONTH);
+
+        f=cfecha(cyear,cmonth,cday);
+
+        return f;
+    }
+
+	public long addDaysOld(long f,int days){
+        int cyear,cmonth,cday;
 
 		final Calendar c = Calendar.getInstance();
 
-		c.set(getyear(f), getmonth(f)-1, getday(f));
+		c.set((int) getyear(f), getmonth(f)-1, getday(f));
 		c.add(Calendar.DATE, days);
 
 		cyear = c.get(Calendar.YEAR);
@@ -341,7 +390,7 @@ public class DateUtils {
 	public String dayweek(long f) {
 		int y,m,d;
 
-		y=getyear(f);
+		y=(int) getyear(f);
 		m=getmonth(f)-1;
 		d=getday(f);
 
@@ -359,7 +408,7 @@ public class DateUtils {
 
 		final Calendar c = Calendar.getInstance();
 
-		c.set(getyear(f), getmonth(f)-1, getday(f));
+		c.set((int) getyear(f), getmonth(f)-1, getday(f));
 
 		dw=c.get(Calendar.DAY_OF_WEEK);
 
@@ -371,7 +420,7 @@ public class DateUtils {
 	public String monthname(long f) {
 		int y,m,d;
 
-		y=getyear(f);
+		y=(int) getyear(f);
 		m=getmonth(f)-1;
 		d=getday(f);
 
@@ -389,7 +438,7 @@ public class DateUtils {
 	     
 		if (f==0) return "";
 		
-		y=getyear(f);
+		y=(int) getyear(f);
 		m=getmonth(f);
 		d=getday(f);
 		
@@ -446,7 +495,7 @@ public class DateUtils {
 
         final Calendar c = Calendar.getInstance();
 
-        c.set(getyear(f), getmonth(f)-1, getday(f));
+        c.set((int) getyear(f), getmonth(f)-1, getday(f));
         cweek = c.get(Calendar.WEEK_OF_YEAR);
         return cweek;
     }
